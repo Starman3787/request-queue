@@ -1,32 +1,38 @@
 const EventsEmitter = require("events");
 
 class QueueHandler extends EventsEmitter {
-    constructor({ TTL = 60 } = {}) {
+    constructor() {
         super();
-        this.TTL = TTL;
         this.queues = new Map();
     }
 
     add(key = "null", value) {
         if (!this.queues.get(key))
-            this.queues.set(key, require("expire-array")(1000 * this.TTL));
-        if ((this.queues.get(key)?._db.length ?? 0) == 0)
+            this.queues.set(key, []);
+        if (this.queues.get(key).length == 0)
             this.emit("next", key, value);
-        else
-            this.queues.get(key).push(value);
+        else {
+            let queue = this.queues.get(key);
+            queue.push(value);
+            this.queues.set(key);
+        }
     }
 
     completed(key = "null") {
-        const queue = this.queues.get(key).shift();
+        let queue = this.queues.get(key);
+        queue.shift();
         this.queues.set(key, queue);
-        if (!this.queues.get(key) || !this.queues.get(key)[0])
-            return;
-        this.emit("next", key, this.queues.get(key)[0]);
+        if (!this.queues.get(key)[0]) {
+            this.queues.delete(key);
+        } else {
+            this.emit("next", key, this.queues.get(key)[0]);
+        }
     }
 
     retryLater(key = "null", next = true, pause = 0) {
         const toRetry = this.queues.get(key).shift();
-        const queue = this.queues.get(key).push(toRetry);
+        let queue = this.queues.get(key);
+        queue.push(toRetry);
         this.queues.set(key, queue);
         if (next == true)
             this.next(key);
@@ -35,11 +41,14 @@ class QueueHandler extends EventsEmitter {
     }
 
     next(key = "null") {
-        if (!this.queues.get(key) || !this.queues.get(key)[0])
-            return;
-        this.emit("next", key, this.queues.get(key)[0]);
-        const queue = this.queues.get(key).shift();
-        this.queues.set(key, queue);
+        if (!this.queues.get(key)[0]) {
+            this.queues.delete(key);
+        } else {
+            this.emit("next", key, this.queues.get(key)[0]);
+            let queue = this.queues.get(key);
+            queue.shift();
+            this.queues.set(key, queue);
+        }
     }
 }
 
