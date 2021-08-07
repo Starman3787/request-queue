@@ -7,7 +7,7 @@ class QueueHandler extends EventsEmitter {
         this.queues = {};
     }
 
-    add(key, value) {
+    add(key = "null", value) {
         if (!queues[key])
             queues[key] = require("expire-array")(1000 * this.TTL);
         if (queues[key].length == 0) {
@@ -17,21 +17,21 @@ class QueueHandler extends EventsEmitter {
         }
     }
 
-    completed(key) {
+    completed(key = "null") {
         queues[key].shift();
         if (!queues[key][0])
             return;
         this.emit("next", key, queues[key][0]);
     }
 
-    retryLater(key, next = true) {
+    retryLater(key = "null", next = true) {
         const toRetry = queues[key].shift();
         queues[key].push(toRetry);
         if (next == true)
             this.next(key);
     }
 
-    next(key) {
+    next(key = "null") {
         if (!queues[key][0])
             return;
         this.emit("next", key, queues[key][0]);
