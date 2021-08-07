@@ -20,11 +20,10 @@ class QueueHandler extends EventsEmitter {
         let queue = this.queues.get(key);
         queue.shift();
         this.queues.set(key, queue);
-        if (!this.queues.get(key)[0]) {
+        if (!this.queues.get(key)[0])
             this.queues.delete(key);
-        } else {
+        else
             this.emit("next", key, this.queues.get(key)[0]);
-        }
     }
 
     retryLater(key = "null", next = true, pause = 0) {
@@ -39,9 +38,9 @@ class QueueHandler extends EventsEmitter {
     }
 
     next(key = "null") {
-        if (!this.queues.get(key)[0]) {
+        if (!this.queues.get(key)[0])
             this.queues.delete(key);
-        } else {
+        else {
             this.emit("next", key, this.queues.get(key)[0]);
             let queue = this.queues.get(key);
             queue.shift();
