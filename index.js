@@ -11,7 +11,7 @@ class QueueHandler extends EventsEmitter {
         if (!queues[key])
             queues[key] = require("expire-array")(1000 * this.TTL);
         if (queues[key].length == 0) {
-            this.emit(key, value);
+            this.emit("next", key, value);
         } else {
             queues[key].push(value);
         }
@@ -21,7 +21,7 @@ class QueueHandler extends EventsEmitter {
         queues[key].shift();
         if (!queues[key][0])
             return;
-        this.emit(key, queues[key][0]);
+        this.emit("next", key, queues[key][0]);
     }
 
     retryLater(key, next = true) {
@@ -34,7 +34,7 @@ class QueueHandler extends EventsEmitter {
     next(key) {
         if (!queues[key][0])
             return;
-        this.emit(key, queues[key][0]);
+        this.emit("next", key, queues[key][0]);
     }
 }
 
