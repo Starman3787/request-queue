@@ -13,15 +13,15 @@ class QueueHandler extends EventsEmitter {
         if (this.queues.get(key)._db.length == 0)
             this.emit("next", key, value);
         else
-            this.queues[key].push(value);
+            this.queues.get(key).push(value);
     }
 
     completed(key = "null") {
         const queue = this.queues.get(key).shift();
         this.queues.set(key, queue);
-        if (!this.queues[key][0])
+        if (!this.queues.get(key)[0])
             return;
-        this.emit("next", key, this.queues[key][0]);
+        this.emit("next", key, this.queues.get(key)[0]);
     }
 
     retryLater(key = "null", next = true, pause = 0) {
