@@ -10,7 +10,7 @@ class QueueHandler extends EventsEmitter {
     add(key = "null", value) {
         if (!this.queues[key])
             this.queues[key] = require("expire-array")(1000 * this.TTL);
-        if (this.queues[key].length == 0)
+        if (this.queues[key]._db.length == 0)
             this.emit("next", key, value);
         else
             this.queues[key].push(value);
