@@ -8,25 +8,24 @@ class QueueHandler extends EventsEmitter {
     }
 
     add(key = "null", value) {
-        if (!queues[key])
-            queues[key] = require("expire-array")(1000 * this.TTL);
-        if (queues[key].length == 0) {
+        if (!this.queues[key])
+            this.queues[key] = require("expire-array")(1000 * this.TTL);
+        if (this.queues[key].length == 0)
             this.emit("next", key, value);
-        } else {
-            queues[key].push(value);
-        }
+        else
+            this.queues[key].push(value);
     }
 
     completed(key = "null") {
-        queues[key].shift();
-        if (!queues[key][0])
+        this.queues[key].shift();
+        if (!this.queues[key][0])
             return;
-        this.emit("next", key, queues[key][0]);
+        this.emit("next", key, this.queues[key][0]);
     }
 
     retryLater(key = "null", next = true, pause = 0) {
-        const toRetry = queues[key].shift();
-        queues[key].push(toRetry);
+        const toRetry = this.queues[key].shift();
+        this.queues[key].push(toRetry);
         if (next == true)
             this.next(key);
         else if (pause != 0)
@@ -34,9 +33,9 @@ class QueueHandler extends EventsEmitter {
     }
 
     next(key = "null") {
-        if (!queues[key][0])
+        if (!this.queues[key][0])
             return;
-        this.emit("next", key, queues[key][0]);
+        this.emit("next", key, this.queues[key][0]);
     }
 }
 
