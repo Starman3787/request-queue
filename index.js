@@ -10,7 +10,7 @@ class QueueHandler extends EventsEmitter {
     add(key = "null", value) {
         if (!this.queues.get(key))
             this.queues.set(key, require("expire-array")(1000 * this.TTL));
-        if (this.queues.get(key)._db.length == 0)
+        if ((this.queues.get(key)?._db.length ?? 0) == 0)
             this.emit("next", key, value);
         else
             this.queues.get(key).push(value);
@@ -19,7 +19,7 @@ class QueueHandler extends EventsEmitter {
     completed(key = "null") {
         const queue = this.queues.get(key).shift();
         this.queues.set(key, queue);
-        if (!this.queues.get(key)[0])
+        if (!this.queues.get(key) || !this.queues.get(key)[0])
             return;
         this.emit("next", key, this.queues.get(key)[0]);
     }
@@ -35,7 +35,7 @@ class QueueHandler extends EventsEmitter {
     }
 
     next(key = "null") {
-        if (!this.queues.get(key)[0])
+        if (!this.queues.get(key) || !this.queues.get(key)[0])
             return;
         this.emit("next", key, this.queues.get(key)[0]);
         const queue = this.queues.get(key).shift();
