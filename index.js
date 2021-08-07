@@ -11,7 +11,7 @@ class QueueHandler extends EventsEmitter {
             this.queues.set(key, []);
         let queue = this.queues.get(key);
         queue.push(value);
-        this.queues.set(key, value);
+        this.queues.set(key, queue);
         if (queue.length == 1)
             this.emit("next", key, value);
     }
