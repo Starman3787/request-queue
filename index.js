@@ -1,7 +1,7 @@
 const EventsEmitter = require("events");
 
 class QueueHandler extends EventsEmitter {
-    constructor({ TTL } = {}) {
+    constructor({ TTL = 60 } = {}) {
         super();
         this.TTL = TTL;
         this.queues = {};
