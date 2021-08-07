@@ -7,8 +7,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Starman",
-  "license": "ISC",
-  "dependencies": {
-    "expire-array": "^1.1.0"
-  }
+  "license": "MIT"
 }
