@@ -24,11 +24,13 @@ class QueueHandler extends EventsEmitter {
         this.emit("next", key, queues[key][0]);
     }
 
-    retryLater(key = "null", next = true) {
+    retryLater(key = "null", next = true, pause = 0) {
         const toRetry = queues[key].shift();
         queues[key].push(toRetry);
         if (next == true)
             this.next(key);
+        else if (pause != 0)
+            setTimeout((() => this.next(key)), pause * 1000);
     }
 
     next(key = "null") {
