@@ -9,13 +9,11 @@ class QueueHandler extends EventsEmitter {
     add(key = "null", value) {
         if (!this.queues.get(key))
             this.queues.set(key, []);
-        if (this.queues.get(key).length == 0)
+        let queue = this.queues.get(key);
+        queue.push(value);
+        this.queues.set(key, value);
+        if (queue.length == 1)
             this.emit("next", key, value);
-        else {
-            let queue = this.queues.get(key);
-            queue.push(value);
-            this.queues.set(key, value);
-        }
     }
 
     completed(key = "null") {
