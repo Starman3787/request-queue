@@ -40,12 +40,8 @@ class QueueHandler extends EventsEmitter {
     next(key = "null") {
         if (!this.queues.get(key)[0])
             this.queues.delete(key);
-        else {
+        else
             this.emit("next", key, this.queues.get(key)[0]);
-            let queue = this.queues.get(key);
-            queue.shift();
-            this.queues.set(key, queue);
-        }
     }
 }
 
