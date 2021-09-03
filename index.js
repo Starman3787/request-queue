@@ -1,6 +1,6 @@
 const EventsEmitter = require("events");
 
-class QueueHandler extends EventsEmitter {
+class BundleHandler extends EventsEmitter {
     constructor(waitPeriod, maxQueueSize) {
         super();
         this.queues = new Map();
@@ -33,4 +33,4 @@ class QueueHandler extends EventsEmitter {
     }
 }
 
-module.exports = QueueHandler;
+module.exports = BundleHandler;
