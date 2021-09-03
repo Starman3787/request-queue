@@ -1,9 +1,12 @@
 const EventsEmitter = require("events");
 
 class QueueHandler extends EventsEmitter {
-    constructor() {
+    constructor(waitPeriod, maxQueueSize) {
         super();
         this.queues = new Map();
+        this.timeouts = new Map();
+        this.waitPeriod = waitPeriod;
+        this.maxQueueSize = maxQueueSize;
     }
 
     add(key = "null", value) {
@@ -13,35 +16,20 @@ class QueueHandler extends EventsEmitter {
         queue.push(value);
         this.queues.set(key, queue);
         if (queue.length == 1)
-            this.emit("next", key, value);
+            this.timeouts.set(key, setTimeout(() => this._emitBundle(key), this.waitPeriod * 1000));
+        else if (queue.length == this.maxQueueSize) {
+            const timeout = this.timeouts.get(key);
+            clearTimeout(timeout);
+            this._emitBundle(key);
+        }
     }
 
-    completed(key = "null") {
+    _emitBundle(key = "null") {
+        this.timeouts.delete(key);
         let queue = this.queues.get(key);
-        queue.shift();
+        const bundle = queue.splice(0, this.maxQueueSize);
         this.queues.set(key, queue);
-        if (!this.queues.get(key)[0])
-            this.queues.delete(key);
-        else
-            this.emit("next", key, this.queues.get(key)[0]);
-    }
-
-    retryLater(key = "null", next = true, pause = 0) {
-        const toRetry = this.queues.get(key).shift();
-        let queue = this.queues.get(key);
-        queue.push(toRetry);
-        this.queues.set(key, queue);
-        if (next == true)
-            this.next(key);
-        else if (pause != 0)
-            setTimeout((() => this.next(key)), pause * 1000);
-    }
-
-    next(key = "null") {
-        if (!this.queues.get(key)[0])
-            this.queues.delete(key);
-        else
-            this.emit("next", key, this.queues.get(key)[0]);
+        this.emit("next", key, bundle);
     }
 }
 
