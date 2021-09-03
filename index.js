@@ -17,11 +17,8 @@ class BundleHandler extends EventsEmitter {
         this.queues.set(key, queue);
         if (queue.length == 1)
             this.timeouts.set(key, setTimeout(() => this._emitBundle(key), this.waitPeriod * 1000));
-        else if (queue.length == this.maxBundleSize) {
-            const timeout = this.timeouts.get(key);
-            clearTimeout(timeout);
+        else if (queue.length == this.maxBundleSize)
             this._emitBundle(key);
-        }
     }
 
     _emitBundle(key = "null") {
