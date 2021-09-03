@@ -1,2 +1,2 @@
 # request-queue
- Simple event-based queue system.
+ Simple event-based bundle system.
