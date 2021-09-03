@@ -1,12 +1,12 @@
 const EventsEmitter = require("events");
 
 class BundleHandler extends EventsEmitter {
-    constructor(waitPeriod, maxQueueSize) {
+    constructor(waitPeriod, maxBundleSize) {
         super();
         this.queues = new Map();
         this.timeouts = new Map();
         this.waitPeriod = waitPeriod;
-        this.maxQueueSize = maxQueueSize;
+        this.maxBundleSize = maxBundleSize;
     }
 
     add(key = "null", value) {
@@ -17,7 +17,7 @@ class BundleHandler extends EventsEmitter {
         this.queues.set(key, queue);
         if (queue.length == 1)
             this.timeouts.set(key, setTimeout(() => this._emitBundle(key), this.waitPeriod * 1000));
-        else if (queue.length == this.maxQueueSize) {
+        else if (queue.length == this.maxBundleSize) {
             const timeout = this.timeouts.get(key);
             clearTimeout(timeout);
             this._emitBundle(key);
@@ -27,7 +27,7 @@ class BundleHandler extends EventsEmitter {
     _emitBundle(key = "null") {
         this.timeouts.delete(key);
         let queue = this.queues.get(key);
-        const bundle = queue.splice(0, this.maxQueueSize);
+        const bundle = queue.splice(0, this.maxBundleSize);
         this.queues.set(key, queue);
         this.emit("next", key, bundle);
     }
